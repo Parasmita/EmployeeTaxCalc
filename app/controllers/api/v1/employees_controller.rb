@@ -49,8 +49,6 @@ class Api::V1::EmployeesController < ApplicationController
 
   def get_cess_ammount(yearly_salary)
     if yearly_salary > 2500000 
-      puts yearly_salary
-      puts (yearly_salary-2500000)
       cess = (yearly_salary-2500000)*3/100
     else
       cess = 0

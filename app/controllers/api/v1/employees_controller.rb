@@ -12,7 +12,7 @@ class Api::V1::EmployeesController < ApplicationController
     yearly_salary = get_yearly_salary(employee.salary,employee.doj)
     tax = get_tax_ammount(yearly_salary)
     cess = get_cess_ammount(yearly_salary)
-    
+
     employee_tax_details = {
        "Employee Code":employee.id,
        "FirstName":employee.firstname,
@@ -50,21 +50,11 @@ class Api::V1::EmployeesController < ApplicationController
   end
 
   def get_yearly_salary(monthly_salary,doj)
-    if doj < Date.new(Date.today.prev_year.year,4,1)
-      yearly_salary = monthly_salary*12
-    else
-      yearly_salary = (monthly_salary*12/365)*(Date.new(Date.today.year,4,1) - doj).to_i
-    end
-    yearly_salary
+    yearly_salary = doj < Date.new(Date.today.prev_year.year,4,1) ? monthly_salary*12 : (monthly_salary*12/365)*(Date.new(Date.today.year,4,1) - doj).to_i
   end
 
   def get_cess_ammount(yearly_salary)
-    if yearly_salary > 2500000 
-      cess = (yearly_salary-2500000)*3/100
-    else
-      cess = 0
-    end
-    cess
+    cess = yearly_salary > 2500000 ? cess = (yearly_salary-2500000)*3/100 : 0
   end
 
   def get_tax_ammount(yearly_salary)
@@ -77,7 +67,6 @@ class Api::V1::EmployeesController < ApplicationController
     else
       tax = yearly_salary*20/100
     end
-    tax
   end
 
   private

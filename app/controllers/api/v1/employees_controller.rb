@@ -1,6 +1,7 @@
 class Api::V1::EmployeesController < ApplicationController
   skip_before_action :verify_authenticity_token
 
+
   def index
     employees = Employee.all
     render json: employees, status: 200
@@ -8,16 +9,17 @@ class Api::V1::EmployeesController < ApplicationController
 
   def show
     employee = Employee.find_by(id: params[:id])
-    yearly_salary = employee.salary*12
+    yearly_salary = get_yearly_salary(employee.salary,employee.doj)
     tax = get_tax_ammount(yearly_salary)
     cess = get_cess_ammount(yearly_salary)
+    
     employee_tax_details = {
-       "employee_id":employee.id,
-       "firstname":employee.firstname,
-       "lastname":employee.lastname,
-       "yearly salary":(employee.salary*12),
-       "cess":cess,
-       "tax": tax
+       "Employee Code":employee.id,
+       "FirstName":employee.firstname,
+       "LastName":employee.lastname,
+       "Yearly Salary":'%.2f' % yearly_salary,
+       "Cess amount":'%.2f' % cess,
+       "Tax amount": '%.2f' % tax
       }
 
     if employee
@@ -45,6 +47,15 @@ class Api::V1::EmployeesController < ApplicationController
         error: "error in creating employee"
       }
     end 
+  end
+
+  def get_yearly_salary(monthly_salary,doj)
+    if doj < Date.new(Date.today.prev_year.year,4,1)
+      yearly_salary = monthly_salary*12
+    else
+      yearly_salary = (monthly_salary*12/365)*(Date.new(Date.today.year,4,1) - doj).to_i
+    end
+    yearly_salary
   end
 
   def get_cess_ammount(yearly_salary)
